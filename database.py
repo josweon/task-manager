@@ -5,16 +5,15 @@ task-manager.database
 This module contains the data handlers for task-manager.
 """
 
-from typing import Union
 import sqlite3 as sqweel
 import re
 
 
 DB_PATH = "task_manager.db"
 
-def connect_db():
+def connect_db() -> sqweel.Connection:
     """Helper function that opens the database connection."""
-    conn = sqweel.connect("task_manager.db") 
+    conn = sqweel.connect(DB_PATH)
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
@@ -64,7 +63,13 @@ def initialize_db() -> None:
         conn.close()
 
 
-def get_single_task(title: str, user_id: int):
+def get_single_task(title: str, user_id: int) -> list:
+    """Gets a single task stored under a user.
+    
+    :param title: str, name of the task.
+    :param user_id: int, id associated with user.
+    :return: list, dictionary containing row for scoped task.
+    """
     conn = connect_db()
     conn.row_factory = sqweel.Row
     cursor = conn.cursor()
@@ -99,7 +104,7 @@ def get_user_tasks(user_id: int) -> list:
     return [dict(row) for row in rows]
 
 
-def create_tasks(new_task: dict):
+def create_tasks(new_task: dict) -> int | None:
     """Inserts a new row(task) in Tasks.
 
     :param new_task: Dictonary, contains attibutes to be inserted.
@@ -118,7 +123,7 @@ def create_tasks(new_task: dict):
     return cursor.lastrowid
 
 
-def update_completion(task: dict):
+def update_completion(task: dict) -> int | None:
     """Updates the status of existing task.
 
     :param task: Dictionary, contains attributes of task.
@@ -141,7 +146,7 @@ def update_completion(task: dict):
         conn.close()
 
 
-def remove_tasks(task_id: int, user_id: int):
+def remove_tasks(task_id: int, user_id: int) -> int | None:
     """Removes a task associated with a user from Tasks table.
 
     :param task_id: int, id associated with task.
@@ -182,7 +187,7 @@ def create_user(email: str, password_hash) -> None:
     conn.close()
 
 
-def get_user_by_email(email: str) -> Union[dict, None]:
+def get_user_by_email(email: str) -> dict | None:
     """Checks if a user already exists by email.
 
     :param email: str, email address of the user.
@@ -204,6 +209,7 @@ def get_user_by_email(email: str) -> Union[dict, None]:
     return None
 
 def is_valid_email(email: str) -> bool:
+    """Helper function to determine if string is formatted as an email."""
     pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     return re.match(pattern, email) is not None
 

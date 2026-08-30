@@ -77,8 +77,7 @@ def create_app(test_config=None) -> Flask: # App factory for dynamic sessions
     def add_task():
         """Adds a new task to the Tasks according to the user logged in.
 
-        :return: JSON, contents for newly added task, thorws error if 
-            the task doesn't have a title or doesn't exist in database.
+        :return: JSON, contents for newly added task.
         """
         user_id = int(get_jwt_identity())
         data = request.get_json(silent=True)
@@ -175,8 +174,7 @@ def create_app(test_config=None) -> Flask: # App factory for dynamic sessions
             that's logged in.
 
         :param task_id: int, id associated with existing task.
-        :return: JSON, full contents of task associated with the id if it
-            exists else throws an error.
+        :return: JSON, full contents of task associated with the id.
         """
         user_id = int(get_jwt_identity())
         data = request.get_json(silent=True)
@@ -210,7 +208,6 @@ def create_app(test_config=None) -> Flask: # App factory for dynamic sessions
 
         :param task_id: int, id associate with existing task.
         :return: JSON, verification that the task was sucessfully removed.
-            If tasks doesn't exist, throws an error.
         """
         user_id = int(get_jwt_identity())
         if db.remove_tasks(task_id=task_id, user_id=user_id):
