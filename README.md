@@ -19,6 +19,14 @@ own tasks. Tasks include a title, description, category, and completion status.
 - Filter a user's tasks by completion status and category
 - Consistent validation and error responses (see [Errors](#errors))
 
+### TUI demo client
+
+A `textual`-based terminal client that consumes the API over HTTP. It runs as
+a separate process from the Flask server and talks only to
+`http://127.0.0.1:5000` — no direct database access. It demonstrates the
+client-side of the auth flow and task CRUD (login, store JWT, list/add/toggle/
+delete tasks). See [Running locally](#running-locally).
+
 ### Errors
 
 All errors are returned as JSON.
@@ -84,7 +92,9 @@ All errors are returned as JSON.
 
 - [x] Login rate limiter
 
-- [ ] Unit and integration test suites using a test database
+- [ ] Implement TUI frontend
+
+- [ ] Unit and integr,ation test suites using a test database
 
 - [ ] README decision notes and scale trade-offs
 
@@ -118,6 +128,15 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python app.py
+```
+
+## Running the TUI demo client
+
+With the server running (above), in a second terminal:
+
+```bash
+source .venv/bin/activate
+python tui_client.py
 ```
 
 ## Definition of done
