@@ -82,7 +82,7 @@ All errors are returned as JSON.
 
 - [x] Input validation and documented error responses
 
-- [ ] Login rate limiter
+- [x] Login rate limiter
 
 - [ ] Unit and integration test suites using a test database
 

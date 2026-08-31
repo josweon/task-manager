@@ -14,6 +14,19 @@ from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+import time 
+
+FAIL_LIMIT = 5
+WINDOW_SECONDS = 10
+
+user_attempt = {}
+def is_attempt_valid(ip_addr):
+    if user_attempt.get(ip_addr) is None:
+        user_attempt[ip_addr] = {"count": 0, "window_start": time.time()}
+        return False
+    entry = user_attempt[ip_addr]
+    return entry["count"] >= FAIL_LIMIT and time.time() - entry["window_start"] < WINDOW_SECONDS
+
 
 def create_app(test_config=None) -> Flask: # App factory for dynamic sessions
     """Creates an instance of the application.
@@ -151,6 +164,9 @@ def create_app(test_config=None) -> Flask: # App factory for dynamic sessions
 
         :return: JSON, access token for jwt access.
         """
+        if is_attempt_valid(request.remote_addr):
+            return jsonify({"error": "Too many attempts."}), 429
+
         data = request.get_json(silent=True)
         if data is None:
             return jsonify({"error": "Request body doesn't contain a message."}), 400
@@ -173,7 +189,8 @@ def create_app(test_config=None) -> Flask: # App factory for dynamic sessions
             if user and check_password_hash(user["password_hash"], password):
                 token = create_access_token(identity=str(user["id"]))
                 return jsonify({"access_token": token})
-
+        
+        user_attempt[request.remote_addr]["count"] += 1
         return jsonify({"error": "Unauthorized access"}), 401
         
         
