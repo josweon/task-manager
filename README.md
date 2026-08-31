@@ -17,11 +17,46 @@ own tasks. Tasks include a title, description, category, and completion status.
 - JWT-protected task routes
 - Create, list, retrieve, update, and delete user-scoped tasks
 - Filter a user's tasks by completion status and category
-- Consistent validation and error responses:
-  - `400 Bad Request` for invalid or missing input
-  - `401 Unauthorized` for missing, invalid, or expired tokens
-  - `404 Not Found` for a task that does not exist or does not belong to the user
-  - `500 Internal Server Error` only for unexpected server failures
+- Consistent validation and error responses (see [Errors](#errors))
+
+### Errors
+
+All errors are returned as JSON.
+
+**Global responses** (applies to every endpoint):
+
+| Status | When it occurs |
+|--------|----------------|
+| `401` | JWT token missing, invalid, or expired |
+| `404` | Route not found, or a malformed task ID |
+| `500` | Unexpected server failure |
+
+**`POST /signup`**
+
+| Status | When it occurs |
+|--------|----------------|
+| `400` | Body is invalid, missing fields, wrong types, empty fields, password shorter than 8, or invalid email |
+| `409` | Email already exists |
+
+**`POST /login`**
+
+| Status | When it occurs |
+|--------|----------------|
+| `400` | Body is invalid, missing fields, wrong types, empty fields, or invalid email |
+| `401` | Incorrect credentials |
+
+**`POST /tasks`**
+
+| Status | When it occurs |
+|--------|----------------|
+| `400` | Body is invalid, missing/blank/non-string title, or duplicate title |
+
+**`PUT /tasks/<id>` · `DELETE /tasks/<id>`**
+
+| Status | When it occurs |
+|--------|----------------|
+| `400` | Body is invalid, or `completed` missing / not a boolean |
+| `404` | Task does not exist or does not belong to the user |
 
 ### Quality and security requirements
 
@@ -45,7 +80,7 @@ own tasks. Tasks include a title, description, category, and completion status.
 
 - [x] Signup, login, password hashing, and JWT protection
 
-- [ ] Input validation and documented error responses
+- [x] Input validation and documented error responses
 
 - [ ] Login rate limiter
 

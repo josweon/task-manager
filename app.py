@@ -151,17 +151,28 @@ def create_app(test_config=None) -> Flask: # App factory for dynamic sessions
 
         :return: JSON, access token for jwt access.
         """
-        data = request.get_json(silent=True) or {}
+        data = request.get_json(silent=True)
+        if data is None:
+            return jsonify({"error": "Request body doesn't contain a message."}), 400
+        elif not isinstance(data, dict):
+            return jsonify({"error": "Request body must be a dictionary."}), 400
+        elif "email" not in data or "password" not in data:
+            return jsonify({"error": "Required fields are missing."}), 400
+        elif not isinstance(data["email"], str) or not isinstance(data["password"], str):
+            return jsonify({"error": "Fields contain unsupported datatypes."}), 400
+        elif data["email"].strip() == "" or data["password"].strip() =="":
+            return jsonify({"error": "Fields cannot be empty."}), 400
+        elif not db.is_valid_email(data["email"]):
+            return jsonify({"error": "Invalid email address."}), 400
+
         email = data.get("email")
         password = data.get("password")
 
-        if not email or not password:
-            return jsonify({"error": "Incorrect credentials"}), 400
-
-        user = db.get_user_by_email(email)
-        if user and check_password_hash(user["password_hash"], password):
-            token = create_access_token(identity=str(user["id"]))
-            return jsonify({"access_token": token})
+        if email and password:
+            user = db.get_user_by_email(email)  
+            if user and check_password_hash(user["password_hash"], password):
+                token = create_access_token(identity=str(user["id"]))
+                return jsonify({"access_token": token})
 
         return jsonify({"error": "Unauthorized access"}), 401
         
@@ -213,6 +224,28 @@ def create_app(test_config=None) -> Flask: # App factory for dynamic sessions
         if db.remove_tasks(task_id=task_id, user_id=user_id):
             return "", 204
         return jsonify({"error": "Task not found"}), 404
+    
+
+    # -- ERROR HANDLING --
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({"error": "Resource not found."}), 404
+
+    @app.errorhandler(500)
+    def internal(error):
+        return jsonify({"error": "Internal server error."}), 500
+    
+    @jwt.unauthorized_loader
+    def missing_token(reason):
+        return jsonify({"error": "Auth failed"}) ,401
+    
+    @jwt.invalid_token_loader
+    def invalid_token(reason):
+        return jsonify({"error": "Auth failed"}) ,401
+
+    @jwt.expired_token_loader
+    def expired_token(jwt_header, jwt_payload):
+        return jsonify({"error": "Auth failed"}) ,401
     
     return app
 

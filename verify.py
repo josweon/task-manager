@@ -54,3 +54,5 @@ def test_update_tasks():
     
     r3 = C.put("/tasks/1", json={"completed": ""}, headers={"Authorization": f"Bearer {token}"})
     assert r3.status_code == 400, r3.json
+
+test_login_user()
