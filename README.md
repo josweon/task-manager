@@ -94,7 +94,7 @@ All errors are returned as JSON.
 
 - [ ] Implement TUI frontend
 
-- [ ] Unit and integr,ation test suites using a test database
+- [ ] Unit and integration test suites using a test database
 
 - [ ] README decision notes and scale trade-offs
 

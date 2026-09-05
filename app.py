@@ -16,9 +16,11 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import time 
 
-FAIL_LIMIT = 5
-WINDOW_SECONDS = 10
 
+FAIL_LIMIT = 5 # Amount of attempts allowed
+WINDOW_SECONDS = 10 # Time window 
+
+"""Helper function to determine the validity of a login attempt."""
 user_attempt = {}
 def is_attempt_valid(ip_addr):
     if user_attempt.get(ip_addr) is None:
