@@ -14,7 +14,7 @@ C = create_app().test_client()
 
 def test_create_signup_user():
     """Tests signup.""" 
-    resp = C.post("/signup", json={"email": "a@b.com", "password": "hunter2"})
+    resp = C.post("/signup", json={"email": "jdlservs@gmail.com", "password": "Josiah1940"})
     assert resp.status_code == 201
 
 
